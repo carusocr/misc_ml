@@ -27,8 +27,8 @@ def build_model():
 
 k = 4
 num_val_samples = len(train_data) // k
-num_epochs = 100
-all_scores = []
+num_epochs = 500
+all_mae_histories = []
 
 for i in range(k):
   print('processing fold ', i)
@@ -43,8 +43,15 @@ for i in range(k):
     train_targets[(i+1) * num_val_samples:]],
     axis=0)
   model = build_model()
-  model.fit(partial_train_data, partial_train_targets, epochs=num_epochs, batch_size=1, verbose=1)
-  val_mse, val_mae = model.evaluate(val_data, val_targets, verbose=0)
-  all_scores.append(val_mae)
+  history = model.fit(partial_train_data, partial_train_targets, 
+          validation_data = (val_data, val_targets),
+          epochs=num_epochs, batch_size=1, verbose=0)
+  mae_history = history.history['val_mean_absolute_error']
+  all_mae_histories.append(mae_history)
 
+average_mae_history = [ np.mean([x[i] for x in all_mae_histories ]) for i in range(num_epochs)]
 
+plt.plot(range(1, len(average_mae_history) + 1), average_mae_history)
+plt.xlabel('Epochs')
+plt.ylabel('Validation MAE')
+plt.show()
