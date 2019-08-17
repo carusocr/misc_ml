@@ -1,12 +1,13 @@
 import keras
 from keras import models
 from keras import layers
+from keras.optimizers import SGD
 import numpy as np
 
 class myCallback(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
         if(logs.get('acc') > 0.9):
-            print("\nReached 60% accuracy, good enough for government work! Bailing...")
+            print("\nReached 90% accuracy, good enough for government work! Bailing...")
             self.model.stop_training = True
 
 callbacks = myCallback()
@@ -27,5 +28,5 @@ model = keras.models.Sequential([
 ])
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 model.summary()
-model.fit(train_imgs, train_labels, epochs=15, callbacks=[callbacks])
+model.fit(train_imgs, train_labels, epochs=1, callbacks=[callbacks])
 test_loss = model.evaluate(test_imgs, test_labels)
