@@ -25,7 +25,7 @@ def __iter__(self): return 0
 # The following code accesses a file in your IBM Cloud Object Storage. It includes your credentials.
 # You might want to remove those credentials before you share your notebook.
 client_4fac95ecdbce4f84809adeb4a03a6fec = ibm_boto3.client(service_name='s3',
-    ibm_api_key_id='gvS77DQWNGkMV01cgepy5thtlczdqPz1ORt9jvfmtUMr',
+    ibm_api_key_id='',
     ibm_auth_endpoint="https://iam.ng.bluemix.net/oidc/token",
     config=Config(signature_version='oauth'),
     endpoint_url='https://s3-api.us-geo.objectstorage.service.networklayer.com')
@@ -86,7 +86,7 @@ training_set.shape
 # feature scale the data to range from 0 to 1
 from sklearn.preprocessing import MinMaxScaler
 sc = MinMaxScaler(feature_range = (0,1))
-#float64 is just to avoid warnings? float32/16 works fine here too
+# vid says float64 is just to avoid warnings? float32/16 works fine here too
 # this course is so kludgey! WTF IBM.
 training_set_scaled = sc.fit_transform(np.float32(training_set))
 training_set_scaled.shape
@@ -108,9 +108,26 @@ for i in range(timesteps, length + timesteps): #timesteps should be 10 here
 print(len(x_train))
 print(len(y_train))
 
+x_train, y_train = np.array(x_train), np.array(y_train)
+x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+y_train = np.reshape(y_train, (y_train.shape[0], y_train.shape[1], 1))
+print(x_train.shape)
+print(y_train.shape)
 
-# In[ ]:
 
+from keras.layers import Dense
+from keras.layers import Input, LSTM
+from keras.models import Model
+import h5py
 
+#initialize LSTM model with MAE loss function
 
+inputs_1_mae = Input(batch_shape=(batch_size, timesteps, 1))
+#                 vv number of nodes
+lstm_1_mae = LSTM(10, stateful=True, return_sequences=True)(inputs_1_mae)
+lstm_2_mae = LSTM(10, stateful=True, return_sequences=True)(lstm_1_mae)
+output_1_mae = Dense(units=1)(lstm_2_mae) # 1 output unit, which is Brent crude oil price
+regressor_mae = Model(inputs=inputs_1_mae, outputs=output_1_mae)
+regressor_mae.compile(optimizer='adam', loss='mae')
+regressor_mae.summary
 
