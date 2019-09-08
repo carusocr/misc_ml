@@ -48,6 +48,8 @@ model = tf.keras.models.Sequential([
 # Your Code Here
 ])
 
+model.summary() #prints a summary of the neural network
+
 from tensorflow.keras.optimizers import RMSprop
 
 model.compile(loss='binary_crossentropy',
